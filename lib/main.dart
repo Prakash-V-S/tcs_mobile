@@ -6,6 +6,9 @@ import 'core/services/token_storage.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/auth/view/login_screen.dart';
+import 'features/berth_schedule/data/berth_schedule_service.dart';
+import 'features/berth_schedule/view/berth_schedule_screen.dart';
+import 'features/berth_schedule/viewmodel/berth_schedule_viewmodel.dart';
 
 void main() {
   runApp(const TcsMobileApp());
@@ -28,6 +31,9 @@ class TcsMobileApp extends StatelessWidget {
         ProxyProvider<ApiService, AuthService>(
           update: (_, apiService, __) => AuthService(apiService),
         ),
+        ProxyProvider<ApiService, BerthScheduleService>(
+          update: (_, apiService, __) => BerthScheduleService(apiService),
+        ),
         
         // ViewModels
         ChangeNotifierProxyProvider2<AuthService, TokenStorage, LoginViewModel>(
@@ -37,6 +43,11 @@ class TcsMobileApp extends StatelessWidget {
           ),
           update: (_, authService, tokenStorage, previous) =>
               previous ?? LoginViewModel(authService, tokenStorage),
+        ),
+        ChangeNotifierProxyProvider<BerthScheduleService, BerthScheduleViewModel>(
+          create: (context) => BerthScheduleViewModel(context.read<BerthScheduleService>()),
+          update: (_, berthScheduleService, previous) =>
+              previous ?? BerthScheduleViewModel(berthScheduleService),
         ),
       ],
       child: MaterialApp(
@@ -49,14 +60,12 @@ class TcsMobileApp extends StatelessWidget {
         initialRoute: '/login',
         routes: {
           '/login': (context) => const LoginScreen(),
-          // TODO: Implement Dashboard Feature
-          '/dashboard': (context) => const Scaffold(
-                body: Center(
-                  child: Text('Dashboard (Coming Soon)'),
-                ),
-              ),
+          // Redirect dashboard straight to berth-schedule to test feature since Dashboard is not yet implemented
+          '/dashboard': (context) => const BerthScheduleScreen(),
+          '/berth-schedule': (context) => const BerthScheduleScreen(),
         },
       ),
     );
   }
 }
+
