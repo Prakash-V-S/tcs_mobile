@@ -14,6 +14,9 @@ import 'features/tos_reports/data/tos_report_service.dart';
 import 'features/tos_reports/view/tos_reports_screen.dart';
 import 'features/tos_reports/viewmodel/tos_report_viewmodel.dart';
 import 'features/tos_reports/viewmodel/generate_tos_report_viewmodel.dart';
+import 'features/invoices/data/invoice_service.dart';
+import 'features/invoices/view/invoice_list_screen.dart';
+import 'features/invoices/viewmodel/invoice_list_viewmodel.dart';
 
 void main() {
   runApp(const TcsMobileApp());
@@ -40,6 +43,9 @@ class TcsMobileApp extends StatelessWidget {
         ),
         ProxyProvider<ApiService, TosReportService>(
           update: (_, apiService, __) => TosReportService(apiService),
+        ),
+        ProxyProvider<ApiService, InvoiceService>(
+          update: (_, apiService, __) => InvoiceService(apiService),
         ),
 
         // ViewModels
@@ -84,6 +90,18 @@ class TcsMobileApp extends StatelessWidget {
           update: (_, tosReportService, tokenStorage, previous) =>
               previous ??
               GenerateTosReportViewModel(tosReportService, tokenStorage),
+        ),
+        ChangeNotifierProxyProvider2<
+          TokenStorage,
+          InvoiceService,
+          InvoiceListViewModel
+        >(
+          create: (context) => InvoiceListViewModel(
+            context.read<TokenStorage>(),
+            context.read<InvoiceService>(),
+          ),
+          update: (_, tokenStorage, invoiceService, previous) =>
+              previous ?? InvoiceListViewModel(tokenStorage, invoiceService),
         ),
       ],
       child: MaterialApp(

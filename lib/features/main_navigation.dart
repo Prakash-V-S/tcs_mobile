@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'berth_schedule/view/berth_schedule_screen.dart';
 import 'tos_reports/view/tos_reports_screen.dart';
+import 'invoices/view/invoice_list_screen.dart';
 import '../core/widgets/custom_app_bar.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     Widget activeScreen;
     switch (_currentIndex) {
       case 0:
-        activeScreen = _buildPlaceholder('Invoice');
+        activeScreen = const InvoiceListScreen();
         break;
       case 1:
         activeScreen = _buildPlaceholder('Search');
