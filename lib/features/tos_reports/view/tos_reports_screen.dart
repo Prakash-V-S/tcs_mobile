@@ -187,8 +187,49 @@ class _TosReportsScreenState extends State<TosReportsScreen> {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                   ),
-                                  onPressed: () {
-                                    // Downloader mockup behavior
+                                  onPressed: () async {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Downloading ${report.label}...',
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                    try {
+                                      await viewModel.downloadReport(
+                                        report.id,
+                                        report.label,
+                                      );
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Report downloaded perfectly!',
+                                            ),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              e.toString().replaceAll(
+                                                'Exception: ',
+                                                '',
+                                              ),
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
                                   },
                                 ),
                                 IconButton(
@@ -200,7 +241,77 @@ class _TosReportsScreenState extends State<TosReportsScreen> {
                                   constraints: const BoxConstraints(),
                                   padding: EdgeInsets.zero,
                                   onPressed: () {
-                                    // Deleter mockup behavior
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext dialogContext) {
+                                        return AlertDialog(
+                                          title: const Text('Delete Report'),
+                                          content: const Text(
+                                            'Are you sure you want to delete this report?',
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('Cancel'),
+                                              onPressed: () {
+                                                Navigator.of(
+                                                  dialogContext,
+                                                ).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              onPressed: () async {
+                                                Navigator.of(
+                                                  dialogContext,
+                                                ).pop();
+                                                try {
+                                                  await viewModel.deleteReport(
+                                                    report.id,
+                                                  );
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'Report deleted successfully',
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          e
+                                                              .toString()
+                                                              .replaceAll(
+                                                                'Exception: ',
+                                                                '',
+                                                              ),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
                                   },
                                 ),
                               ],

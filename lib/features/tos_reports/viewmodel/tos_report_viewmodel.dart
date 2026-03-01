@@ -3,6 +3,10 @@ import '../../../core/services/token_storage.dart';
 import '../data/tos_report_service.dart';
 import '../model/tos_report_model.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 class TosReportsViewModel extends ChangeNotifier {
   final TosReportService _tosReportService;
@@ -86,6 +90,65 @@ class TosReportsViewModel extends ChangeNotifier {
       _isLoading = false;
       _isLoadingMore = false;
       notifyListeners();
+    }
+  }
+
+  // Handle native file downloading
+  Future<void> downloadReport(String reportId, String reportLabel) async {
+    try {
+      final responseMap = await _tosReportService.previewReport(reportId);
+      final String? base64String = responseMap['file'];
+
+      if (base64String == null || base64String.isEmpty) {
+        throw Exception("Report file is empty or missing from backend.");
+      }
+
+      // 1. Clean Base64 format if backend dynamically injects MIME type prefixes
+      final pureBase64 = base64String.replaceFirst(RegExp(r'data:[^;]+;base64,'), '');
+      final fileBytes = base64Decode(pureBase64);
+
+      // 2. Resolve native physical write directory
+      final directory = await getApplicationDocumentsDirectory();
+      
+      // Assume .xlsx given the 0M8R4KGx (Office Open XML header) context.
+      // E.g. "ETAT_DU_STOCK_697787d.xlsx"
+      final sanitizedLabel = reportLabel.replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_');
+      final extension = '.xlsx';
+      final file = File('${directory.path}/${sanitizedLabel}_${reportId.substring(0, 6)}$extension');
+
+      // 3. Write data to OS limits
+      await file.writeAsBytes(fileBytes);
+
+      // 4. Trigger system handler to open the newly written document natively
+      final result = await OpenFilex.open(file.path);
+      if (result.type != ResultType.done) {
+         throw Exception("Could not open file natively: ${result.message}");
+      }
+    } catch (e) {
+      // Let the view handle the error rendering
+      rethrow;
+    }
+  }
+
+  // Handle report deletion natively
+  Future<void> deleteReport(String reportId) async {
+    try {
+      final username = await _tokenStorage.getUsername();
+      if (username == null || username.isEmpty) {
+        throw Exception("You must be logged in to delete reports.");
+      }
+
+      final success = await _tosReportService.deleteReport(reportId, username);
+      if (success) {
+         // Locally cascade report drop out of list immediately without full network refresh
+        _reports.removeWhere((report) => report.id == reportId);
+        notifyListeners();
+      } else {
+         throw Exception("Failed to delete report. Please try again later.");
+      }
+    } catch (e) {
+      // Let the view handle the error rendering
+      rethrow;
     }
   }
 }

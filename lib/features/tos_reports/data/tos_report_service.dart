@@ -165,4 +165,21 @@ class TosReportService {
       rethrow;
     }
   }
+
+  Future<bool> deleteReport(String reportId, String username) async {
+    try {
+      final response = await _apiService.delete('/reports?reportId=$reportId&username=$username');
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      }
+      return false;
+    } on DioException catch (e) {
+      if (e.response?.data is Map && e.response?.data['message'] != null) {
+        throw Exception(e.response!.data['message']);
+      }
+      throw Exception(e.message ?? 'Failed to delete report');
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
