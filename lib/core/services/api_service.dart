@@ -1,95 +1,139 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/app_config.dart';
+import 'token_storage.dart';
 
 class ApiService {
-  final Dio _dio = Dio();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  late final Dio _dio;
+  final TokenStorage _tokenStorage;
 
-  ApiService() {
-    _dio.options.baseUrl = AppConfig.baseUrl;
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await _secureStorage.read(key: 'jwt_token');
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        return handler.next(response);
-      },
-      onError: (DioError error, handler) async {
-        if (error.response?.statusCode == 401) {
-          await _handleLogout();
-        }
-        return handler.next(error);
-      },
-    ));
+  ApiService({
+    required TokenStorage tokenStorage,
+    Dio? dio,
+  }) : _tokenStorage = tokenStorage {
+    _dio = dio ??
+        Dio(
+          BaseOptions(
+            baseUrl: AppConfig.baseUrl,
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+            responseType: ResponseType.json,
+          ),
+        );
+    _initializeInterceptors();
+  }
+
+  void _initializeInterceptors() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await _tokenStorage.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          options.headers['Content-Type'] = 'application/json';
+          options.headers['Accept'] = 'application/json';
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response);
+        },
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await _handleLogout();
+          }
+          return handler.next(error);
+        },
+      ),
+    );
   }
 
   Future<void> _handleLogout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    // Navigate to login screen or perform logout logic
+    await _tokenStorage.clearToken();
+    // TODO: Implement navigation to the login screen using your routing solution.
+    // For example, triggering a global state change using Riverpod, Provider, or a GlobalNavigatorKey.
   }
 
-  Future<dynamic> get(String endpoint, {Map<String, dynamic>? queryParams}) async {
+  Future<Response> get(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.get(endpoint, queryParameters: queryParams);
-      return response.data;
-    } on DioError catch (e) {
-      _handleError(e);
+      return await _dio.get(endpoint, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw _handleError(e);
     }
   }
 
-  Future<dynamic> post(String endpoint, {Map<String, dynamic>? data}) async {
+  Future<Response> post(String endpoint, {dynamic data, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.post(endpoint, data: jsonEncode(data));
-      return response.data;
-    } on DioError catch (e) {
-      _handleError(e);
+      return await _dio.post(endpoint, data: data, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw _handleError(e);
     }
   }
 
-  Future<dynamic> put(String endpoint, {Map<String, dynamic>? data}) async {
+  Future<Response> put(String endpoint, {dynamic data, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.put(endpoint, data: jsonEncode(data));
-      return response.data;
-    } on DioError catch (e) {
-      _handleError(e);
+      return await _dio.put(endpoint, data: data, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw _handleError(e);
     }
   }
 
-  Future<dynamic> delete(String endpoint, {Map<String, dynamic>? data}) async {
+  Future<Response> delete(String endpoint, {dynamic data, Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.delete(endpoint, data: jsonEncode(data));
-      return response.data;
-    } on DioError catch (e) {
-      _handleError(e);
+      return await _dio.delete(endpoint, data: data, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw _handleError(e);
     }
   }
 
-  void _handleError(DioError error) {
-    if (error.response != null) {
-      switch (error.response!.statusCode) {
-        case 401:
-          throw Exception('Unauthorized');
-        case 403:
-          throw Exception('Access Denied');
-        case 500:
-          throw Exception('Server Error');
-        default:
-          throw Exception(error.response!.data['message'] ?? 'Unknown Error');
+  Exception _handleError(DioException error) {
+    String errorMessage = 'Unexpected error occurred.';
+
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      errorMessage = 'Connection timed out.';
+    } else if (error.type == DioExceptionType.badResponse) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode != null) {
+        switch (statusCode) {
+          case 400:
+            errorMessage = 'Bad request.';
+            break;
+          case 401:
+            errorMessage = 'Unauthorized. Please login again.';
+            break;
+          case 403:
+            errorMessage = 'Access denied.';
+            break;
+          case 404:
+            errorMessage = 'Resource not found.';
+            break;
+          case 500:
+            errorMessage = 'Internal server error.';
+            break;
+          default:
+            errorMessage = 'Server error: $statusCode.';
+        }
       }
-    } else {
-      throw Exception('Network Error');
-    }
-  }
-}
 
-class AppConfig {
-  static const String baseUrl = 'http://192.168.0.115:8090';
+      // Try to parse error message from API response based on the required JSON format:
+      // {
+      //   success: false,
+      //   message: string,
+      //   error?: string
+      // }
+      if (error.response?.data != null && error.response!.data is Map<String, dynamic>) {
+        final data = error.response!.data as Map<String, dynamic>;
+        if (data.containsKey('message') && data['message'] != null) {
+          errorMessage = data['message'].toString();
+        } else if (data.containsKey('error') && data['error'] != null) {
+          errorMessage = data['error'].toString();
+        }
+      }
+    } else if (error.type == DioExceptionType.connectionError) {
+      errorMessage = 'No Internet connection.';
+    }
+
+    return Exception(errorMessage);
+  }
 }
