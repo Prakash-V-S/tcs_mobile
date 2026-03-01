@@ -24,9 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
       FocusScope.of(context).unfocus(); // Dismiss keyboard
-      
+
       final viewModel = context.read<LoginViewModel>();
-      
+
       final success = await viewModel.login(
         _usernameController.text.trim(),
         _passwordController.text,
@@ -69,10 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   const Text(
                     'CTCS Login',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
@@ -111,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Action for forgot password placeholder 
+                        // Action for forgot password placeholder
                         // TODO: Implement Forgot Password Route
                       },
                       child: const Text('Forgot Password?'),
@@ -129,7 +126,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? const SizedBox(
                                 height: 24,
                                 width: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Text(
                                 'Login',

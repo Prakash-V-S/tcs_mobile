@@ -12,11 +12,11 @@ class LoginRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'username': username,
-        'password': password,
-        'rememberMe': rememberMe,
-        'deviceType': deviceType,
-      };
+    'username': username,
+    'password': password,
+    'rememberMe': rememberMe,
+    'deviceType': deviceType,
+  };
 }
 
 class LoginResponse {
@@ -46,6 +46,7 @@ class User {
   final String lastname;
   final String email;
   final String companyName;
+  final String companyType;
   final bool isAdmin;
   final List<String> moduleAccess;
 
@@ -56,6 +57,7 @@ class User {
     required this.lastname,
     required this.email,
     required this.companyName,
+    required this.companyType,
     required this.isAdmin,
     required this.moduleAccess,
   });
@@ -68,6 +70,7 @@ class User {
       lastname: json['lastname'] as String? ?? '',
       email: json['email'] as String? ?? '',
       companyName: json['companyName'] as String? ?? '',
+      companyType: json['companyType'] as String? ?? '',
       isAdmin: json['isAdmin'] ?? false,
       moduleAccess: List<String>.from(json['moduleAccess'] ?? []),
     );

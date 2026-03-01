@@ -15,10 +15,13 @@ class AuthService {
       final responseData = response.data;
 
       if (responseData is Map<String, dynamic>) {
-        if (responseData.containsKey('token') && responseData['token'] != null) {
+        if (responseData.containsKey('token') &&
+            responseData['token'] != null) {
           return LoginResponse.fromJson(responseData);
         } else {
-           throw Exception(responseData['message'] ?? 'Invalid email or password');
+          throw Exception(
+            responseData['message'] ?? 'Invalid email or password',
+          );
         }
       } else {
         throw Exception('Invalid response format');

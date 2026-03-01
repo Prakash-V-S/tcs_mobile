@@ -45,7 +45,7 @@ class BerthScheduleViewModel extends ChangeNotifier {
   // Load next page
   Future<void> loadMore() async {
     if (_isLoadingMore || !hasMore || _isLoading) return;
-    
+
     _currentPage++;
     await _fetchData(isLoadMore: true);
   }
@@ -53,10 +53,10 @@ class BerthScheduleViewModel extends ChangeNotifier {
   // Set Search text and retrigger fetching dynamically
   void setSearchQuery(String query) {
     if (_searchQuery == query) return;
-    
+
     _searchQuery = query;
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    
+
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       initLoad();
     });
@@ -92,12 +92,12 @@ class BerthScheduleViewModel extends ChangeNotifier {
       } else {
         _schedules = response.data;
       }
-      
+
       _errorMessage = null;
     } catch (e) {
-       _errorMessage = e.toString().replaceAll('Exception: ', '');
-       // If pagination fails, rollback the page number
-       if (isLoadMore) _currentPage--;
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      // If pagination fails, rollback the page number
+      if (isLoadMore) _currentPage--;
     } finally {
       _isLoading = false;
       _isLoadingMore = false;

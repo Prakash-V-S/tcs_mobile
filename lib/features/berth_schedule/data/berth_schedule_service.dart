@@ -17,7 +17,9 @@ class PaginatedBerthScheduleResponse {
 
   factory PaginatedBerthScheduleResponse.fromJson(Map<String, dynamic> json) {
     var list = json['data'] as List? ?? [];
-    List<BerthScheduleModel> dataList = list.map((i) => BerthScheduleModel.fromJson(i as Map<String, dynamic>)).toList();
+    List<BerthScheduleModel> dataList = list
+        .map((i) => BerthScheduleModel.fromJson(i as Map<String, dynamic>))
+        .toList();
 
     return PaginatedBerthScheduleResponse(
       data: dataList,
@@ -43,10 +45,14 @@ class BerthScheduleService {
       final Map<String, dynamic> filterData = {};
 
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-         // Perform regex search on vessel_name or visit for versatile UI testing assuming mongo backend regex
+        // Perform regex search on vessel_name or visit for versatile UI testing assuming mongo backend regex
         filterData['\$or'] = [
-          {'vessel_name': {'\$regex': searchQuery, '\$options': 'i'}},
-          {'visit': {'\$regex': searchQuery, '\$options': 'i'}}
+          {
+            'vessel_name': {'\$regex': searchQuery, '\$options': 'i'},
+          },
+          {
+            'visit': {'\$regex': searchQuery, '\$options': 'i'},
+          },
         ];
       }
 
@@ -61,11 +67,11 @@ class BerthScheduleService {
         "page": page,
         "limit": limit,
         "sortBy": "eta",
-        "sortOrder": "asc"
+        "sortOrder": "asc",
       };
 
       final response = await _apiService.post('/v1/search', data: payload);
-      
+
       final responseData = response.data;
       if (responseData is Map<String, dynamic>) {
         return PaginatedBerthScheduleResponse.fromJson(responseData);

@@ -5,7 +5,9 @@ import '../viewmodel/berth_schedule_viewmodel.dart';
 import 'berth_details_screen.dart';
 
 class BerthScheduleScreen extends StatefulWidget {
-  const BerthScheduleScreen({Key? key}) : super(key: key);
+  const BerthScheduleScreen({Key? key, this.isFromNavigation = false})
+    : super(key: key);
+  final bool isFromNavigation;
 
   @override
   State<BerthScheduleScreen> createState() => _BerthScheduleScreenState();
@@ -23,13 +25,16 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
     });
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         context.read<BerthScheduleViewModel>().loadMore();
       }
     });
 
     _searchController.addListener(() {
-      context.read<BerthScheduleViewModel>().setSearchQuery(_searchController.text);
+      context.read<BerthScheduleViewModel>().setSearchQuery(
+        _searchController.text,
+      );
     });
   }
 
@@ -45,12 +50,17 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Berth schedule', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Berth schedule',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const CircleAvatar(
-            backgroundImage: NetworkImage('https://via.placeholder.com/150'), // Placeholder avatar
+            backgroundImage: NetworkImage(
+              'https://via.placeholder.com/150',
+            ), // Placeholder avatar
           ),
           onPressed: () {},
         ),
@@ -75,7 +85,7 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                     shape: BoxShape.circle,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ],
@@ -90,14 +100,22 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (viewModel.errorMessage != null && viewModel.schedules.isEmpty) {
+                if (viewModel.errorMessage != null &&
+                    viewModel.schedules.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(viewModel.errorMessage!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
+                        Text(
+                          viewModel.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.red),
+                        ),
                         const SizedBox(height: 16),
-                        ElevatedButton(onPressed: () => viewModel.initLoad(), child: const Text('Retry')),
+                        ElevatedButton(
+                          onPressed: () => viewModel.initLoad(),
+                          child: const Text('Retry'),
+                        ),
                       ],
                     ),
                   );
@@ -112,8 +130,17 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                   child: ListView.builder(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
-                    itemCount: viewModel.schedules.length + (viewModel.isLoadingMore ? 1 : 0),
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 8,
+                      bottom: widget.isFromNavigation
+                          ? 20
+                          : 80, // Dynamic padding mapping
+                    ),
+                    itemCount:
+                        viewModel.schedules.length +
+                        (viewModel.isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == viewModel.schedules.length) {
                         return const Padding(
@@ -132,20 +159,8 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
           ),
         ],
       ),
-      // Bottom Navigation Bar placeholder from mockup
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue[900],
-        unselectedItemColor: Colors.grey,
-        currentIndex: 4, // Vessel Schedule active
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Invoice'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Storage'),
-          BottomNavigationBarItem(icon: Icon(Icons.assessment_outlined), label: 'Reports'),
-          BottomNavigationBarItem(icon: Icon(Icons.directions_boat), label: 'Schedule'),
-        ],
-      ),
+      // bottomNavigationBar: Scaffold-level Navbar Removed cleanly since parent Scaffold resolves it.
+      //
     );
   }
 
@@ -195,23 +210,29 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
     }
 
     Color getBadgeTextColor(String phase) {
-       if (phase.toLowerCase() == 'inbound') return Colors.blue[900]!;
-       if (phase.toLowerCase() == 'departed') return Colors.red[900]!;
-       return Colors.grey[800]!;
+      if (phase.toLowerCase() == 'inbound') return Colors.blue[900]!;
+      if (phase.toLowerCase() == 'departed') return Colors.red[900]!;
+      return Colors.grey[800]!;
     }
 
-    final dateFormatObj = schedule.eta; 
-    final dateFormatObjEtd = schedule.etd; 
-    
+    final dateFormatObj = schedule.eta;
+    final dateFormatObjEtd = schedule.etd;
+
     // Formatting N/A cleanly fallback
-    final formattedEta = (dateFormatObj != null && dateFormatObj != 'N/A') ? dateFormatObj.toString() : 'N/A';
-    final formattedEtd = (dateFormatObjEtd != null && dateFormatObjEtd != 'N/A') ? dateFormatObjEtd.toString() : 'N/A';
+    final formattedEta = (dateFormatObj != null && dateFormatObj != 'N/A')
+        ? dateFormatObj.toString()
+        : 'N/A';
+    final formattedEtd = (dateFormatObjEtd != null && dateFormatObjEtd != 'N/A')
+        ? dateFormatObjEtd.toString()
+        : 'N/A';
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => BerthDetailsScreen(schedule: schedule)),
+          MaterialPageRoute(
+            builder: (context) => BerthDetailsScreen(schedule: schedule),
+          ),
         );
       },
       child: Container(
@@ -240,21 +261,31 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                     const SizedBox(width: 8),
                     Text(
                       schedule.vesselName.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                     color: getBadgeColor(schedule.phase),
-                     borderRadius: BorderRadius.circular(4),
+                    color: getBadgeColor(schedule.phase),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     schedule.phase,
-                    style: TextStyle(color: getBadgeTextColor(schedule.phase), fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: getBadgeTextColor(schedule.phase),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -264,24 +295,45 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('ETA', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    const Text(
+                      'ETA',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
                     const SizedBox(height: 4),
-                    Text(formattedEta, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    Text(
+                      formattedEta,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
                   ],
                 ),
                 const Icon(Icons.sync_alt, color: Colors.blue, size: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                     const Text('ETD', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                     const SizedBox(height: 4),
-                     Text(formattedEtd, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    const Text(
+                      'ETD',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      formattedEtd,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
-             const SizedBox(height: 16),
-             Text('Line : ${schedule.line}', style: const TextStyle(color: Colors.black87, fontSize: 13)),
+            const SizedBox(height: 16),
+            Text(
+              'Line : ${schedule.line}',
+              style: const TextStyle(color: Colors.black87, fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -311,14 +363,28 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Filters', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                        const Text(
+                          'Filters',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Text('Phase', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Phase',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 12),
-                    ...['Inbound', 'Outbound', 'Departed', 'Unit Gate in'].map((phase) {
+                    ...['Inbound', 'Outbound', 'Departed', 'Unit Gate in'].map((
+                      phase,
+                    ) {
                       return ListTile(
                         title: Text(phase),
                         trailing: Radio<String?>(
@@ -333,10 +399,10 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                         ),
                         contentPadding: EdgeInsets.zero,
                         onTap: () {
-                           setModalState(() {
-                              localSelection = phase;
-                            });
-                        }
+                          setModalState(() {
+                            localSelection = phase;
+                          });
+                        },
                       );
                     }).toList(),
                     const SizedBox(height: 24),
@@ -348,7 +414,13 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                               viewModel.setPhaseFilter(null);
                               Navigator.pop(context);
                             },
-                            child: Text('Clear all', style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.w600)),
+                            child: Text(
+                              'Clear all',
+                              style: TextStyle(
+                                color: Colors.blue[900],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -357,13 +429,21 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue[900],
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                             onPressed: () {
                               viewModel.setPhaseFilter(localSelection);
                               Navigator.pop(context);
                             },
-                            child: const Text('Apply filters', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              'Apply filters',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],
