@@ -49,6 +49,7 @@ class User {
   final String companyType;
   final bool isAdmin;
   final List<String> moduleAccess;
+  final String? profileLogo;
 
   User({
     required this.id,
@@ -60,6 +61,7 @@ class User {
     required this.companyType,
     required this.isAdmin,
     required this.moduleAccess,
+    this.profileLogo,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class User {
       companyType: json['companyType'] as String? ?? '',
       isAdmin: json['isAdmin'] ?? false,
       moduleAccess: List<String>.from(json['moduleAccess'] ?? []),
+      profileLogo: json['profileLogo'] as String?,
     );
   }
 

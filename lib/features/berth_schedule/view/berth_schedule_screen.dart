@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../viewmodel/berth_schedule_viewmodel.dart';
 import 'berth_details_screen.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 
 class BerthScheduleScreen extends StatefulWidget {
   const BerthScheduleScreen({Key? key, this.isFromNavigation = false})
@@ -49,47 +50,7 @@ class _BerthScheduleScreenState extends State<BerthScheduleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'Berth schedule',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const CircleAvatar(
-            backgroundImage: NetworkImage(
-              'https://via.placeholder.com/150',
-            ), // Placeholder avatar
-          ),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_border, color: Colors.black),
-            onPressed: () {},
-          ),
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none, color: Colors.black),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      appBar: const CustomAppBar(title: 'Berth schedule'),
       body: Column(
         children: [
           _buildSearchBar(context),

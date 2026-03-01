@@ -22,6 +22,9 @@ class TosReportsViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  String? _profileLogoBase64;
+  String? get profileLogoBase64 => _profileLogoBase64;
+
   int _currentPage = 1;
   int _totalPages = 1;
   final int _limit = 10;
@@ -57,6 +60,9 @@ class TosReportsViewModel extends ChangeNotifier {
       if (loggedInUserId == null || loggedInUserId.isEmpty) {
         throw Exception("You must be logged in to view reports.");
       }
+
+      // Fetch Profile Logo asynchronously for UI Header Layer
+      _profileLogoBase64 = await _tokenStorage.getProfileLogo();
 
       final response = await _tosReportService.fetchReports(
         userId: loggedInUserId,

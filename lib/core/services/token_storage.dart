@@ -14,6 +14,8 @@ abstract class TokenStorage {
   Future<String?> getCompanyType();
   Future<bool> saveUsername(String username);
   Future<String?> getUsername();
+  Future<bool> saveProfileLogo(String base64String);
+  Future<String?> getProfileLogo();
 }
 
 class TokenStorageImpl implements TokenStorage {
@@ -23,6 +25,7 @@ class TokenStorageImpl implements TokenStorage {
   static const String _companyNameKey = 'company_name';
   static const String _companyTypeKey = 'company_type';
   static const String _usernameKey = 'user_name';
+  static const String _profileLogoKey = 'profile_logo';
 
   @override
   Future<bool> saveToken(String token) async {
@@ -43,6 +46,7 @@ class TokenStorageImpl implements TokenStorage {
     await prefs.remove(_companyNameKey);
     await prefs.remove(_companyTypeKey);
     await prefs.remove(_usernameKey);
+    await prefs.remove(_profileLogoKey);
     return await prefs.remove(_tokenKey);
   }
 
@@ -56,6 +60,18 @@ class TokenStorageImpl implements TokenStorage {
   Future<String?> getUserRole() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_roleKey);
+  }
+
+  @override
+  Future<bool> saveProfileLogo(String base64String) async {
+    final prefs = await SharedPreferences.getInstance();
+    return await prefs.setString(_profileLogoKey, base64String);
+  }
+
+  @override
+  Future<String?> getProfileLogo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_profileLogoKey);
   }
 
   @override

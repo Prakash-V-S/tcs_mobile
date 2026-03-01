@@ -81,6 +81,11 @@ class LoginViewModel extends ChangeNotifier {
         await _tokenStorage.saveCompanyType(response.user.companyType);
         await _tokenStorage.saveUsername(response.user.username);
 
+        if (response.user.profileLogo != null &&
+            response.user.profileLogo!.isNotEmpty) {
+          await _tokenStorage.saveProfileLogo(response.user.profileLogo!);
+        }
+
         _isLoading = false;
         notifyListeners();
         return true;

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 import '../viewmodel/tos_report_viewmodel.dart';
 import 'generate_tos_report_screen.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 
 class TosReportsScreen extends StatefulWidget {
   const TosReportsScreen({Key? key, this.isFromNavigation = false})
@@ -53,47 +55,7 @@ class _TosReportsScreenState extends State<TosReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Reports',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const CircleAvatar(
-            backgroundImage: NetworkImage(
-              'https://via.placeholder.com/150',
-            ), // Placeholder avatar
-          ),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_border, color: Colors.black),
-            onPressed: () {},
-          ),
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none, color: Colors.black),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      appBar: const CustomAppBar(title: 'Reports'),
       body: Column(
         children: [
           Container(

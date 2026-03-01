@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'berth_schedule/view/berth_schedule_screen.dart';
 import 'tos_reports/view/tos_reports_screen.dart';
+import '../core/widgets/custom_app_bar.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final int initialIndex;
@@ -26,25 +27,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget _buildPlaceholder(String title) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const CircleAvatar(
-            backgroundImage: NetworkImage(
-              'https://via.placeholder.com/150',
-            ), // Placeholder avatar
-          ),
-          onPressed: () {},
-        ),
-      ),
+      appBar: CustomAppBar(title: title),
       body: Center(
         child: Text(
           '$title (Coming Soon)',
