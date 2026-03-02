@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'berth_schedule/view/berth_schedule_screen.dart';
 import 'tos_reports/view/tos_reports_screen.dart';
 import 'invoices/view/invoice_list_screen.dart';
+import 'container_search/view/container_search_screen.dart';
+import 'container_search/viewmodel/container_search_viewmodel.dart';
+import 'container_search/service/container_search_service.dart';
+import '../core/services/api_service.dart';
+import '../core/services/token_storage.dart';
+import 'package:provider/provider.dart';
 import '../core/widgets/custom_app_bar.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -47,7 +53,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         activeScreen = const InvoiceListScreen();
         break;
       case 1:
-        activeScreen = _buildPlaceholder('Search');
+        activeScreen = ChangeNotifierProvider(
+          create: (_) {
+            // Need to retrieve userId from TokenStorage
+            // Since this is a simple setup, we mock userId resolution or fetch it
+            // Assuming the ApiService handles user context
+            return ContainerSearchViewModel(
+              service: ContainerSearchService(
+                apiService: ApiService(tokenStorage: TokenStorageImpl()),
+              ),
+              userId: '', // Add real userId mapping if stored locally, or handled in API interceptor
+            );
+          },
+          child: const ContainerSearchScreen(),
+        );
         break;
       case 2:
         activeScreen = _buildPlaceholder('Storage');
