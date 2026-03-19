@@ -1,16 +1,19 @@
 class ContainerRecentSearchQueryModel {
   final String containerNumber;
   final String? inputType;
+  final String? lineOperator;
 
   ContainerRecentSearchQueryModel({
     required this.containerNumber,
     this.inputType,
+    this.lineOperator,
   });
 
   factory ContainerRecentSearchQueryModel.fromJson(Map<String, dynamic> json) {
     return ContainerRecentSearchQueryModel(
       containerNumber: json['container_number'] ?? '',
       inputType: json['inputType'],
+      lineOperator: json['lineOperator'],
     );
   }
 }

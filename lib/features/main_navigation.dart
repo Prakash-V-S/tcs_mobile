@@ -6,6 +6,9 @@ import 'invoices/view/invoice_list_screen.dart';
 import 'container_search/view/container_search_screen.dart';
 import 'container_search/viewmodel/container_search_viewmodel.dart';
 import 'container_search/service/container_search_service.dart';
+import 'storage_management/view/storage_management_screen.dart';
+import 'storage_management/viewmodel/storage_management_viewmodel.dart';
+import 'storage_management/service/storage_management_service.dart';
 import '../core/services/api_service.dart';
 import '../core/services/token_storage.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +72,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         );
         break;
       case 2:
-        activeScreen = _buildPlaceholder('Storage');
+        activeScreen = ChangeNotifierProvider(
+          create: (_) {
+            return StorageManagementViewModel(
+              service: StorageManagementService(
+                apiService: ApiService(tokenStorage: TokenStorageImpl()),
+              ),
+              userId: '', // Mocked or handled securely
+            );
+          },
+          child: const StorageManagementScreen(),
+        );
         break;
       case 3:
         activeScreen = TosReportsScreen(

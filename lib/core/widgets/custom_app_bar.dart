@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import '../services/token_storage.dart';
-import '../../main.dart'; // To optionally grab a global service locator if we don't pass it
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
+  final bool showAvatar;
+  final bool showBackIcon;
+  final VoidCallback? onBackPressed;
 
-  const CustomAppBar({Key? key, required this.title, this.actions})
-    : super(key: key);
+  const CustomAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.showAvatar = true,
+    this.showBackIcon = false,
+    this.onBackPressed,
+  });
 
   @override
   State<CustomAppBar> createState() => _CustomAppBarState();
@@ -60,12 +68,19 @@ class _CustomAppBarState extends State<CustomAppBar> {
       ),
       backgroundColor: Colors.white,
       elevation: 0,
-      leading: IconButton(
-        icon: _buildAvatar(),
-        onPressed: () {
-          // Open sliding Drawer or Profile settings
-        },
-      ),
+      leading: widget.showBackIcon
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: widget.onBackPressed ?? () => Navigator.of(context).pop(),
+            )
+          : (widget.showAvatar
+              ? IconButton(
+                  icon: _buildAvatar(),
+                  onPressed: () {
+                    // Open sliding Drawer or Profile settings
+                  },
+                )
+              : null),
       actions:
           widget.actions ??
           [
