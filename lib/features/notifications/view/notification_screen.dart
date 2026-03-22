@@ -18,9 +18,12 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    final vm = context.read<NotificationViewModel>();
+    final int length = vm.hasSubscriptionAccess ? 2 : 1;
+    _tabController = TabController(length: length, vsync: this);
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationViewModel>().fetchNotifications();
+      vm.fetchNotifications();
     });
   }
 
@@ -32,79 +35,75 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.done_all, color: Color(0xFF36519E)),
-            tooltip: 'Mark all as read',
-            onPressed: () => context.read<NotificationViewModel>().markAllAsRead(),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: Colors.transparent,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.grey,
-                labelPadding: const EdgeInsets.only(right: 8),
-                tabs: [
-                  _buildTab('Subscriptions', 0),
-                  _buildTab('General', 1),
-                ],
+    return Consumer<NotificationViewModel>(
+      builder: (context, vm, child) {
+        final bool showTabs = vm.hasSubscriptionAccess;
+        
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              'Notifications',
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            centerTitle: false,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.done_all, color: Color(0xFF36519E)),
+                tooltip: 'Mark all as read',
+                onPressed: () => vm.markAllAsRead(),
               ),
-            ),
+              const SizedBox(width: 8),
+            ],
           ),
-          Expanded(
-            child: Consumer<NotificationViewModel>(
-              builder: (context, vm, child) {
-                if (vm.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (vm.errorMessage.isNotEmpty) {
-                  return Center(child: Text(vm.errorMessage));
-                }
-
-                return TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildNotificationList(vm.subscriptionNotifications, vm),
-                    _buildNotificationList(vm.generalNotifications, vm),
-                  ],
-                );
-              },
-            ),
+          body: Column(
+            children: [
+              if (showTabs)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      indicatorColor: Colors.transparent,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.grey,
+                      labelPadding: const EdgeInsets.only(right: 8),
+                      tabs: [
+                        _buildTab('Subscriptions', 0),
+                        _buildTab('General', 1),
+                      ],
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: vm.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : vm.errorMessage.isNotEmpty
+                        ? Center(child: Text(vm.errorMessage))
+                        : showTabs
+                            ? TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  _buildNotificationList(vm.subscriptionNotifications, vm),
+                                  _buildNotificationList(vm.generalNotifications, vm),
+                                ],
+                              )
+                            : _buildNotificationList(vm.generalNotifications, vm),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: Consumer<NotificationViewModel>(
-        builder: (context, vm, child) {
-          if (!vm.isAdmin) return const SizedBox.shrink();
-          return _buildCreateNotificationFAB();
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: vm.isAdmin ? _buildCreateNotificationFAB() : null,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
 
@@ -212,6 +211,7 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
         width: double.infinity,
         height: 54,
         child: FloatingActionButton.extended(
+          heroTag: null,
           onPressed: () => Navigator.pushNamed(context, '/create-notification'),
           backgroundColor: const Color(0xFF2E3B84), // Branded blue from reference
           elevation: 4,

@@ -146,9 +146,7 @@ class TcsMobileApp extends StatelessWidget {
         initialRoute: '/login',
         routes: {
           '/login': (context) => const LoginScreen(),
-          '/dashboard': (context) => const MainNavigationScreen(
-            initialIndex: 4,
-          ), // Defaults to Schedule per requirements
+          '/dashboard': (context) => const MainNavigationScreen(), 
           '/berth-schedule': (context) => const BerthScheduleScreen(),
           '/reports': (context) => const TosReportsScreen(),
           '/subscriptions': (context) => const SubscriptionScreen(),

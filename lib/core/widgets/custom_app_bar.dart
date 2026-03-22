@@ -29,30 +29,31 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _CustomAppBarState extends State<CustomAppBar> {
   String? _profileLogoBase64;
-  bool _isLoadingAvatar = true;
+  List<String> _moduleAccess = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProfileLogo();
+    _loadUserData();
   }
 
-  Future<void> _loadProfileLogo() async {
-    // In a production app you could also inject this via Provider, but directly resolving
-    // from SharedPreferences works perfectly for a global constant that doesn't change post-login.
+  Future<void> _loadUserData() async {
     try {
       final tokenStorage = TokenStorageImpl();
       final logo = await tokenStorage.getProfileLogo();
+      final access = await tokenStorage.getModuleAccess();
       if (mounted) {
         setState(() {
           _profileLogoBase64 = logo;
-          _isLoadingAvatar = false;
+          _moduleAccess = access;
+          _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _isLoadingAvatar = false;
+          _isLoading = false;
         });
       }
     }
@@ -86,63 +87,64 @@ class _CustomAppBarState extends State<CustomAppBar> {
       actions:
           widget.actions ??
           [
-            IconButton(
-              icon: const Icon(Icons.bookmark_border, color: Colors.black),
-              onPressed: () {
-                Navigator.of(context).pushNamed('/subscriptions');
-              },
-            ),
+            if (_moduleAccess.any((m) => m.toLowerCase().trim() == 'subscription'))
+              IconButton(
+                icon: const Icon(Icons.bookmark_border, color: Colors.black),
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/subscriptions');
+                },
+              ),
 
-            Consumer<NotificationViewModel>(
-              builder: (context, vm, child) {
-                return Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.notifications_none,
-                        color: Colors.black,
+            if (_moduleAccess.any((m) => m.toLowerCase().trim() == 'notification'))
+              Consumer<NotificationViewModel>(
+                builder: (context, vm, child) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/notifications');
+                        },
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed('/notifications');
-                      },
-                    ),
-                    if (vm.unreadCount > 0)
-                      Positioned(
-                        right: 12,
-                        top: 12,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            '${vm.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+                      if (vm.unreadCount > 0)
+                        Positioned(
+                          right: 12,
+                          top: 12,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: const BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                            child: Text(
+                              '${vm.unreadCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                );
-              },
-            ),
-
+                    ],
+                  );
+                },
+              ),
           ],
     );
   }
 
   Widget _buildAvatar() {
-    if (_isLoadingAvatar) {
+    if (_isLoading) {
       return CircleAvatar(
         backgroundColor: Colors.grey[200],
         child: const SizedBox(

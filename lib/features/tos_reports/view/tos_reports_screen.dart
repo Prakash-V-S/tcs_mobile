@@ -328,6 +328,7 @@ class _TosReportsScreenState extends State<TosReportsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () {
           Navigator.push(
             context,

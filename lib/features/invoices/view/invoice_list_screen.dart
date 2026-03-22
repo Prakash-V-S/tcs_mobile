@@ -81,6 +81,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () {
           // TODO: Navigate to generation tab dynamically
         },

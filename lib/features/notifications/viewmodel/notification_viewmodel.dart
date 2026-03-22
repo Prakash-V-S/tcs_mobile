@@ -12,6 +12,7 @@ class NotificationViewModel extends ChangeNotifier {
 
   String? get userRole => _userRole;
   bool get isAdmin => _userRole?.toLowerCase() == 'admin';
+  bool get hasSubscriptionAccess => _screens.any((s) => s.toLowerCase().trim() == 'subscription');
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
