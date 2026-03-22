@@ -17,6 +17,10 @@ import 'features/tos_reports/viewmodel/generate_tos_report_viewmodel.dart';
 import 'features/invoices/data/invoice_service.dart';
 import 'features/invoices/view/invoice_list_screen.dart';
 import 'features/invoices/viewmodel/invoice_list_viewmodel.dart';
+import 'features/subscriptions/service/subscription_service.dart';
+import 'features/subscriptions/viewmodel/subscription_viewmodel.dart';
+import 'features/subscriptions/view/subscription_screen.dart';
+
 
 void main() {
   runApp(const TcsMobileApp());
@@ -47,6 +51,10 @@ class TcsMobileApp extends StatelessWidget {
         ProxyProvider<ApiService, InvoiceService>(
           update: (_, apiService, __) => InvoiceService(apiService),
         ),
+        ProxyProvider<ApiService, SubscriptionService>(
+          update: (_, apiService, __) => SubscriptionService(apiService: apiService),
+        ),
+
 
         // ViewModels
         ChangeNotifierProxyProvider2<AuthService, TokenStorage, LoginViewModel>(
@@ -103,6 +111,19 @@ class TcsMobileApp extends StatelessWidget {
           update: (_, tokenStorage, invoiceService, previous) =>
               previous ?? InvoiceListViewModel(tokenStorage, invoiceService),
         ),
+        ChangeNotifierProxyProvider2<
+          SubscriptionService,
+          TokenStorage,
+          SubscriptionViewModel
+        >(
+          create: (context) => SubscriptionViewModel(
+            service: context.read<SubscriptionService>(),
+            userId: '', // Will be updated in the view via initState
+          ),
+          update: (_, service, tokenStorage, previous) =>
+              previous ?? SubscriptionViewModel(service: service, userId: ''),
+        ),
+
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -116,7 +137,9 @@ class TcsMobileApp extends StatelessWidget {
           ), // Defaults to Schedule per requirements
           '/berth-schedule': (context) => const BerthScheduleScreen(),
           '/reports': (context) => const TosReportsScreen(),
+          '/subscriptions': (context) => const SubscriptionScreen(),
         },
+
       ),
     );
   }

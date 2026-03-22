@@ -86,8 +86,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
           [
             IconButton(
               icon: const Icon(Icons.bookmark_border, color: Colors.black),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushNamed('/subscriptions');
+              },
             ),
+
             Stack(
               alignment: Alignment.center,
               children: [
