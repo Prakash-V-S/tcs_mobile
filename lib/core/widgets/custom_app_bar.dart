@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../services/token_storage.dart';
 import '../../features/notifications/viewmodel/notification_viewmodel.dart';
 
@@ -89,7 +90,12 @@ class _CustomAppBarState extends State<CustomAppBar> {
           [
             if (_moduleAccess.any((m) => m.toLowerCase().trim() == 'subscription'))
               IconButton(
-                icon: const Icon(Icons.bookmark_border, color: Colors.black),
+                icon: SvgPicture.asset(
+                  'assets/icons/subscriptions.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                ),
                 onPressed: () {
                   Navigator.of(context).pushNamed('/subscriptions');
                 },
@@ -102,9 +108,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     alignment: Alignment.center,
                     children: [
                       IconButton(
-                        icon: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
+                        icon: SvgPicture.asset(
+                          'assets/icons/notifications.svg',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                         ),
                         onPressed: () {
                           Navigator.of(context).pushNamed('/notifications');
@@ -112,26 +120,28 @@ class _CustomAppBarState extends State<CustomAppBar> {
                       ),
                       if (vm.unreadCount > 0)
                         Positioned(
-                          right: 12,
-                          top: 12,
+                          right: 8,
+                          top: 8,
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(6),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE53935), // Brighter red
+                              shape: BoxShape.circle,
                             ),
                             constraints: const BoxConstraints(
-                              minWidth: 12,
-                              minHeight: 12,
+                              minWidth: 16,
+                              minHeight: 16,
                             ),
-                            child: Text(
-                              '${vm.unreadCount}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
+                            child: Center(
+                              child: Text(
+                                '${vm.unreadCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),

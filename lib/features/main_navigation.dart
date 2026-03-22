@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'berth_schedule/view/berth_schedule_screen.dart';
 import 'tos_reports/view/tos_reports_screen.dart';
@@ -17,13 +18,13 @@ import '../core/widgets/custom_app_bar.dart';
 import 'package:tcs_mobile/features/notifications/viewmodel/notification_viewmodel.dart';
 
 class NavigationTab {
-  final IconData icon;
+  final String iconPath;
   final String label;
   final Widget screen;
   final String moduleName;
 
   NavigationTab({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.screen,
     required this.moduleName,
@@ -62,13 +63,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       // Build filtered tabs
       final allTabs = [
         NavigationTab(
-          icon: Icons.receipt_long,
+          iconPath: 'assets/icons/Invoice summary.svg',
           label: 'Invoice',
           moduleName: 'invoices',
           screen: const InvoiceListScreen(),
         ),
         NavigationTab(
-          icon: Icons.search,
+          iconPath: 'assets/icons/Container search.svg',
           label: 'Search',
           moduleName: 'container-search',
           screen: ChangeNotifierProvider(
@@ -82,7 +83,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ),
         NavigationTab(
-          icon: Icons.inventory_2_outlined,
+          iconPath: 'assets/icons/Empty storage management.svg',
           label: 'Storage',
           moduleName: 'storage-management',
           screen: ChangeNotifierProvider(
@@ -96,13 +97,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ),
         NavigationTab(
-          icon: Icons.assessment_outlined,
+          iconPath: 'assets/icons/tos reports.svg',
           label: 'Reports',
           moduleName: 'tos-reports',
           screen: const TosReportsScreen(isFromNavigation: true),
         ),
         NavigationTab(
-          icon: Icons.directions_boat,
+          iconPath: 'assets/icons/vessel schedule.svg',
           label: 'Schedule',
           moduleName: 'vessel-schedule',
           screen: const BerthScheduleScreen(isFromNavigation: true),
@@ -172,10 +173,23 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             _currentIndex = index;
           });
         },
-        items: _activeTabs.map((tab) => BottomNavigationBarItem(
-          icon: Icon(tab.icon),
-          label: tab.label,
-        )).toList(),
+        items: _activeTabs.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tab = entry.value;
+          final bool isSelected = _currentIndex == index;
+          return BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              tab.iconPath,
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                isSelected ? const Color(0xFF2E3B84) : Colors.grey,
+                BlendMode.srcIn,
+              ),
+            ),
+            label: tab.label,
+          );
+        }).toList(),
       ),
     );
   }
