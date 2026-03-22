@@ -35,7 +35,7 @@ class StorageManagementService {
   Future<List<ContainerRecentSearchModel>> getRecentSearches(
       String userId) async {
     try {
-      final response = await _apiService.get('/v1/dashboard/searches/$userId');
+      final response = await _apiService.get('/v1/dashboard/searches');
 
       if (response.data != null && response.data is List) {
         final list = response.data as List;
