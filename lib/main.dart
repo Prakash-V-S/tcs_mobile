@@ -26,12 +26,21 @@ import 'package:tcs_mobile/features/notifications/view/notification_screen.dart'
 import 'package:tcs_mobile/features/notifications/view/create_notification_screen.dart';
 
 
-void main() {
-  runApp(const TcsMobileApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final tokenStorage = TokenStorageImpl();
+  final token = await tokenStorage.getToken();
+  
+  runApp(TcsMobileApp(
+    initialRoute: (token != null && token.isNotEmpty) ? '/dashboard' : '/login'
+  ));
 }
 
 class TcsMobileApp extends StatelessWidget {
-  const TcsMobileApp({super.key});
+  final String initialRoute;
+  
+  const TcsMobileApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +152,7 @@ class TcsMobileApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'CTCS',
         theme: ThemeData(primarySwatch: Colors.indigo, useMaterial3: true),
-        initialRoute: '/login',
+        initialRoute: initialRoute,
         routes: {
           '/login': (context) => const LoginScreen(),
           '/dashboard': (context) => const MainNavigationScreen(), 
