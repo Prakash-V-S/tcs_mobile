@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:provider/provider.dart';
 import '../services/token_storage.dart';
+import '../../features/notifications/viewmodel/notification_viewmodel.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
@@ -91,42 +93,50 @@ class _CustomAppBarState extends State<CustomAppBar> {
               },
             ),
 
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.notifications_none,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 12,
-                      minHeight: 12,
-                    ),
-                    child: const Text(
-                      '3',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
+            Consumer<NotificationViewModel>(
+              builder: (context, vm, child) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications_none,
+                        color: Colors.black,
                       ),
-                      textAlign: TextAlign.center,
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/notifications');
+                      },
                     ),
-                  ),
-                ),
-              ],
+                    if (vm.unreadCount > 0)
+                      Positioned(
+                        right: 12,
+                        top: 12,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            '${vm.unreadCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
+
           ],
     );
   }

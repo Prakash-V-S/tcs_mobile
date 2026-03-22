@@ -16,7 +16,10 @@ abstract class TokenStorage {
   Future<String?> getUsername();
   Future<bool> saveProfileLogo(String base64String);
   Future<String?> getProfileLogo();
+  Future<bool> saveModuleAccess(List<String> screens);
+  Future<List<String>> getModuleAccess();
 }
+
 
 class TokenStorageImpl implements TokenStorage {
   static const String _tokenKey = 'jwt_token';
@@ -26,6 +29,8 @@ class TokenStorageImpl implements TokenStorage {
   static const String _companyTypeKey = 'company_type';
   static const String _usernameKey = 'user_name';
   static const String _profileLogoKey = 'profile_logo';
+  static const String _moduleAccessKey = 'module_access';
+
 
   @override
   Future<bool> saveToken(String token) async {
@@ -47,7 +52,9 @@ class TokenStorageImpl implements TokenStorage {
     await prefs.remove(_companyTypeKey);
     await prefs.remove(_usernameKey);
     await prefs.remove(_profileLogoKey);
+    await prefs.remove(_moduleAccessKey);
     return await prefs.remove(_tokenKey);
+
   }
 
   @override
@@ -121,4 +128,17 @@ class TokenStorageImpl implements TokenStorage {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_usernameKey);
   }
+
+  @override
+  Future<bool> saveModuleAccess(List<String> screens) async {
+    final prefs = await SharedPreferences.getInstance();
+    return await prefs.setStringList(_moduleAccessKey, screens);
+  }
+
+  @override
+  Future<List<String>> getModuleAccess() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_moduleAccessKey) ?? [];
+  }
 }
+

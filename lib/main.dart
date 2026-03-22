@@ -17,9 +17,13 @@ import 'features/tos_reports/viewmodel/generate_tos_report_viewmodel.dart';
 import 'features/invoices/data/invoice_service.dart';
 import 'features/invoices/view/invoice_list_screen.dart';
 import 'features/invoices/viewmodel/invoice_list_viewmodel.dart';
-import 'features/subscriptions/service/subscription_service.dart';
-import 'features/subscriptions/viewmodel/subscription_viewmodel.dart';
-import 'features/subscriptions/view/subscription_screen.dart';
+import 'package:tcs_mobile/features/subscriptions/view/subscription_screen.dart';
+import 'package:tcs_mobile/features/subscriptions/service/subscription_service.dart';
+import 'package:tcs_mobile/features/subscriptions/viewmodel/subscription_viewmodel.dart';
+import 'package:tcs_mobile/features/notifications/service/notification_service.dart';
+import 'package:tcs_mobile/features/notifications/viewmodel/notification_viewmodel.dart';
+import 'package:tcs_mobile/features/notifications/view/notification_screen.dart';
+import 'package:tcs_mobile/features/notifications/view/create_notification_screen.dart';
 
 
 void main() {
@@ -53,6 +57,9 @@ class TcsMobileApp extends StatelessWidget {
         ),
         ProxyProvider<ApiService, SubscriptionService>(
           update: (_, apiService, __) => SubscriptionService(apiService: apiService),
+        ),
+        ProxyProvider<ApiService, NotificationService>(
+          update: (_, apiService, __) => NotificationService(apiService: apiService),
         ),
 
 
@@ -118,10 +125,17 @@ class TcsMobileApp extends StatelessWidget {
         >(
           create: (context) => SubscriptionViewModel(
             service: context.read<SubscriptionService>(),
-            userId: '', // Will be updated in the view via initState
+            userId: '',
           ),
           update: (_, service, tokenStorage, previous) =>
               previous ?? SubscriptionViewModel(service: service, userId: ''),
+        ),
+        ChangeNotifierProxyProvider<NotificationService, NotificationViewModel>(
+          create: (context) => NotificationViewModel(
+            service: context.read<NotificationService>(),
+          ),
+          update: (_, service, previous) =>
+              previous ?? NotificationViewModel(service: service),
         ),
 
       ],
@@ -138,6 +152,8 @@ class TcsMobileApp extends StatelessWidget {
           '/berth-schedule': (context) => const BerthScheduleScreen(),
           '/reports': (context) => const TosReportsScreen(),
           '/subscriptions': (context) => const SubscriptionScreen(),
+          '/notifications': (context) => const NotificationScreen(),
+          '/create-notification': (context) => const CreateNotificationScreen(),
         },
 
       ),

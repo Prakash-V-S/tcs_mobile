@@ -86,6 +86,9 @@ class LoginViewModel extends ChangeNotifier {
           await _tokenStorage.saveProfileLogo(response.user.profileLogo!);
         }
 
+        await _tokenStorage.saveModuleAccess(response.user.moduleAccess);
+
+
         _isLoading = false;
         notifyListeners();
         return true;

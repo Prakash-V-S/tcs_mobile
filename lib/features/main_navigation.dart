@@ -13,6 +13,7 @@ import '../core/services/api_service.dart';
 import '../core/services/token_storage.dart';
 import 'package:provider/provider.dart';
 import '../core/widgets/custom_app_bar.dart';
+import 'package:tcs_mobile/features/notifications/viewmodel/notification_viewmodel.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final int initialIndex;
@@ -31,7 +32,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _initializeNotifications();
   }
+
+  Future<void> _initializeNotifications() async {
+    final tokenStorage = TokenStorageImpl();
+    final userId = await tokenStorage.getUserId() ?? '';
+    final screens = await tokenStorage.getModuleAccess();
+    final role = await tokenStorage.getUserRole();
+    if (mounted) {
+      context.read<NotificationViewModel>().setUserId(userId, screens, role: role);
+    }
+  }
+
 
   // Placeholder screens for unimplemented features
   Widget _buildPlaceholder(String title) {
