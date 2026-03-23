@@ -246,7 +246,7 @@ class _ContainerSearchScreenState extends State<ContainerSearchScreen> {
                       },
                     )
                   : null,
-              hintText: viewModel.isSearchFocused ? '|Search Containers' : 'Search Containers',
+              hintText: viewModel.isSearchFocused ? 'Search Containers' : 'Search Containers',
               hintStyle: const TextStyle(
                 color: Colors.grey,
                 fontSize: 16,
